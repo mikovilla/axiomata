@@ -34,10 +34,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-dependencies = []
+dependencies = ["sympy"]
 
 [project.optional-dependencies]
-dev = []
+dev = ["pytest"]
 
 [project.urls]
 Homepage = "https://github.com/mikovilla/axiomata"
