@@ -3,7 +3,6 @@ from sympy import symbols, sympify, simplify
 
 n, k = symbols("n k", integer=True, positive=True)
 
-
 def preprocess(expr):
     """Convert implicit multiplication to explicit multiplication."""
     expr = expr.replace("^", "**")

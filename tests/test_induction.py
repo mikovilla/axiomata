@@ -1,7 +1,7 @@
 import pytest
 from sympy import Rational, sympify
 
-from induction.induction import (
+from induction.arithmetic_sum import (
     preprocess,
     parse,
     verify,
