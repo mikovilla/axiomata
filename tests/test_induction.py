@@ -1,12 +1,11 @@
 import pytest
-from sympy import Rational, sympify
 
-from induction.arithmetic_sum import (
+from induction.arithmetic_series import (
     preprocess,
     parse,
-    verify,
     base_case,
     inductive_step,
+    explain,
     n,
 )
 
@@ -28,34 +27,23 @@ def test_preprocess(expr, expected):
 
 def test_parse_consecutive_integers():
     data = parse("1 + 2 + 3 + ... + n = n(n+1)/2")
-    assert data["a"] == 1
-    assert data["d"] == 1
-    assert data["last"] == n
-    assert data["terms"] == n
-    assert data["lhs_sum"] == n * (n + 1) / 2
+    assert data["first_term"] == 1
+    assert data["difference"] == 1
     assert data["rhs"] == n * (n + 1) / 2
 
 
 def test_parse_odd_numbers():
     data = parse("1 + 3 + 5 + ... + (2n-1) = n^2")
-    assert data["a"] == 1
-    assert data["d"] == 2
+    assert data["first_term"] == 1
+    assert data["difference"] == 2
     assert data["rhs"] == n ** 2
 
 
-# verify
-
-@pytest.mark.parametrize("statement", [
-    "1 + 2 + 3 + ... + n = n(n+1)/2",
-    "1 + 3 + 5 + ... + (2n-1) = n^2",
-    "2 + 4 + 6 + ... + 2n = n(n+1)",
-])
-def test_verify_true_for_correct_identities(statement):
-    assert verify(statement) is True
-
-
-def test_verify_false_for_incorrect_identity():
-    assert verify("1 + 2 + 3 + ... + n = n^2") is False
+def test_parse_starting_at_two():
+    data = parse("2 + 4 + 6 + ... + 2n = n(n+1)")
+    assert data["first_term"] == 2
+    assert data["difference"] == 2
+    assert data["rhs"] == n * (n + 1)
 
 
 # base_case
@@ -63,13 +51,14 @@ def test_verify_false_for_incorrect_identity():
 @pytest.mark.parametrize("statement", [
     "1 + 2 + 3 + ... + n = n(n+1)/2",
     "1 + 3 + 5 + ... + (2n-1) = n^2",
+    "2 + 4 + 6 + ... + 2n = n(n+1)",
 ])
 def test_base_case_true(statement):
-    assert base_case(statement) is True
+    assert base_case(statement, explain=False) is True
 
 
 def test_base_case_false_for_incorrect_identity():
-    assert base_case("1 + 2 + 3 + ... + n = n^2 + 1") is False
+    assert base_case("1 + 2 + 3 + ... + n = n^2 + 1", explain=False) is False
 
 
 # inductive_step
@@ -80,14 +69,62 @@ def test_base_case_false_for_incorrect_identity():
     "2 + 4 + 6 + ... + 2n = n(n+1)",
 ])
 def test_inductive_step_true(statement):
-    assert inductive_step(statement) is True
+    assert inductive_step(statement, explain=False) is True
 
 
 def test_inductive_step_false_for_incorrect_identity():
-    assert inductive_step("1 + 2 + 3 + ... + n = n^2") is False
+    assert inductive_step("1 + 2 + 3 + ... + n = n^2", explain=False) is False
 
 
 def test_verified_statement_passes_both_induction_conditions():
     statement = "1 + 2 + 3 + ... + n = n(n+1)/2"
-    assert base_case(statement) is True
-    assert inductive_step(statement) is True
+    assert base_case(statement, explain=False) is True
+    assert inductive_step(statement, explain=False) is True
+
+
+# base_case / inductive_step explain output
+
+def test_base_case_explain_false_prints_nothing(capsys):
+    base_case("1 + 2 + 3 + ... + n = n(n+1)/2", explain=False)
+    assert capsys.readouterr().out == ""
+
+
+def test_base_case_explain_true_prints_line(capsys):
+    ok = base_case("1 + 3 + 5 + ... + (2n-1) = n^2", explain=True)
+    out = capsys.readouterr().out
+
+    assert ok is True
+    assert "Base (n = 1):  1 = 1  OK" in out
+
+
+def test_inductive_step_explain_false_prints_nothing(capsys):
+    inductive_step("1 + 2 + 3 + ... + n = n(n+1)/2", explain=False)
+    assert capsys.readouterr().out == ""
+
+
+def test_inductive_step_explain_true_prints_lines(capsys):
+    ok = inductive_step("1 + 3 + 5 + ... + (2n-1) = n^2", explain=True)
+    out = capsys.readouterr().out
+
+    assert ok is True
+    assert "Hypothesis:  assume P(k) = k**2" in out
+    assert "k**2 + (2*k + 1) = (k + 1)**2  OK" in out
+
+
+# explain
+
+def test_explain_reports_success_for_correct_identity(capsys):
+    explain("1 + 3 + 5 + ... + (2n-1) = n^2")
+    out = capsys.readouterr().out
+
+    assert "Base (n = 1):  1 = 1  OK" in out
+    assert "k**2 + (2*k + 1) = (k + 1)**2  OK" in out
+    assert "By induction, true for all n >= 1." in out
+
+
+def test_explain_reports_failure_for_incorrect_identity(capsys):
+    explain("1 + 2 + 3 + ... + n = n^2")
+    out = capsys.readouterr().out
+
+    assert "FAIL" in out
+    assert "Induction fails: inductive step does not hold." in out
