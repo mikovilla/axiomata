@@ -3,6 +3,7 @@
 ![version](https://img.shields.io/badge/version-0.2.0-blue)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
+[![pypi](https://img.shields.io/pypi/v/axiomata)](https://pypi.org/project/axiomata/)
 
 Importable modules for mathematical and CS proof, analysis, and reasoning.
 
