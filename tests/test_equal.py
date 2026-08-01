@@ -1,7 +1,7 @@
 import pytest
 from sympy import symbols
 
-from checks.equal import equal, preprocess
+from axiomata.checks import equal, preprocess
 
 k = symbols("k")
 

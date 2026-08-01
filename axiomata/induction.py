@@ -35,11 +35,11 @@ def mark(ok):
     return "OK" if ok else "FAIL"
 
 
-def base_case(statement, base=1, explain=False):
+def base_case(statement, start=1, explain=False):
     proposition = parse(statement)
-    
+
     lhs = proposition["first_term"]
-    rhs_1 = proposition["rhs"].subs(n, base)
+    rhs_1 = proposition["rhs"].subs(n, start)
     ok = lhs == rhs_1
 
     if explain:

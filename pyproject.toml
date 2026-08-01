@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "axiomata"
-version = "0.1.0"
+version = "0.2.0"
 description = "Toolkit for mathematical and CS proof, analysis, and reasoning."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -45,4 +45,4 @@ Issues = "https://github.com/mikovilla/axiomata/issues"
 PyPI = "https://pypi.org/project/axiomata/"
 
 [tool.hatch.build.targets.wheel]
-packages = ["induction", "checks", "calculate"]
+packages = ["axiomata"]

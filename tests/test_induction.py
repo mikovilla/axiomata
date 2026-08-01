@@ -1,6 +1,6 @@
 import pytest
 
-from induction.arithmetic_series import (
+from axiomata.induction import (
     preprocess,
     parse,
     base_case,

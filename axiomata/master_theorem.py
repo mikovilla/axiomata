@@ -1,6 +1,6 @@
 from sympy import symbols, log, limit, oo, simplify, sympify
 
-from checks.equal import preprocess
+from axiomata.checks import preprocess
 
 n = symbols("n", positive=True)
 
@@ -30,7 +30,7 @@ def _match_log_power(ratio, max_k=6):
     return None
 
 
-def master_theorem(a, b, f_n, explain=False):
+def calculate(a, b, f_n, explain=False):
     """Classify T(n) = a*T(n/b) + f(n) using the Master Theorem.
 
     Returns a dict with the critical exponent, which case applies (1, 2, or 3),
