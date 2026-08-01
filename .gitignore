@@ -10,9 +10,16 @@ env/
 .mypy_cache/
 .ruff_cache/
 *.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
 
 .vscode/
 .idea/
 
-notebook/*
+.DS_Store
+Thumbs.db
+
+notebooks/*
 .ipynb_checkpoints/

@@ -35,10 +35,11 @@ def mark(ok):
     return "OK" if ok else "FAIL"
 
 
-def base_case(statement, explain=False):
-    claim = parse(statement)
-    lhs = claim["first_term"]
-    rhs_1 = claim["rhs"].subs(n, 1)
+def base_case(statement, base=1, explain=False):
+    proposition = parse(statement)
+    
+    lhs = proposition["first_term"]
+    rhs_1 = proposition["rhs"].subs(n, base)
     ok = lhs == rhs_1
 
     if explain:
@@ -48,12 +49,12 @@ def base_case(statement, explain=False):
 
 
 def inductive_step(statement, explain=False):
-    claim = parse(statement)
+    proposition = parse(statement)
 
-    Pk = claim["rhs"].subs(n, k)
-    next_term = claim["first_term"] + k * claim["difference"]
+    Pk = proposition["rhs"].subs(n, k)
+    next_term = proposition["first_term"] + k * proposition["difference"]
     lhs = Pk + next_term
-    rhs_k1 = claim["rhs"].subs(n, k + 1)
+    rhs_k1 = proposition["rhs"].subs(n, k + 1)
     ok = simplify(lhs - rhs_k1) == 0
 
     if explain:
@@ -65,7 +66,7 @@ def inductive_step(statement, explain=False):
 
 
 def explain(statement):
-    print(f"Claim  {statement}")
+    print(f"proposition  {statement}")
     print()
 
     base_ok = base_case(statement, explain=True)
