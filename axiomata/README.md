@@ -74,3 +74,33 @@ master_theorem.calculate(2, 2, "n", explain=True)
 Case 3 results also include `regularity_holds` in the returned dict — whether the regularity condition (`a*f(n/b) <= r*f(n)` for some `r<1`) is satisfied, which the Master Theorem requires for Case 3 to actually apply.
 
 Only covers recurrences that fit the `aT(n/b) + f(n)` shape — a *constant-factor* shrink each call. Recurrences that shrink by a constant *amount* instead (`T(n-1) + f(n)`, e.g. bubble sort, linear search) aren't divide-and-conquer and fall outside what this function can solve; those resolve by direct summation instead.
+
+## `sort`
+
+Elementary O(n²) sorting algorithms: `bubble`, `selection`, `insertion`.
+
+```python
+from axiomata.sort import Sort, Type, Animation
+
+Sort(Type.BUBBLE).animate()                              # sorts 10 random distinct numbers
+Sort(Type.SELECTION).array(5).animate()                   # sorts 5 random distinct numbers
+Sort(Type.INSERTION).array([5, 3, 8, 1, 9]).animate()     # sorts the given array
+
+# live terminal bar-chart animation, redrawn in place every `delay` seconds
+Sort(Type.BUBBLE).array([5, 3, 8, 1, 9]).delay(0.5).animate(Animation.ANSI)
+
+# shorthand for the zero-config case (10 random distinct numbers, delay defaults to 1)
+from axiomata import sort
+
+sort.bubble()
+sort.selection(animate=Animation.ANSI)          # delay defaults to 1
+sort.insertion(animate=Animation.ANSI, delay=0.5)
+```
+
+`Sort(algorithm)` fixes which algorithm the instance runs — `Type.BUBBLE`, `Type.SELECTION`, or `Type.INSERTION`. `.array(...)` and `.delay(seconds)` are chainable configuration methods; `.animate(...)` is the terminal call that actually runs the sort and returns the sorted list. Calling `.animate()` more than once on the same instance reuses the same starting values.
+
+- `.array(values=None)` — `array()` (no arguments) generates `10` random distinct numbers; `array(n)` generates `n` random distinct numbers (max `10` for now); `array([...])` sorts that explicit list instead (must be distinct numbers, max `10` elements for now)
+- `.delay(seconds)` — seconds between animation frames (default `1`), only meaningful when `.animate(...)` is given an `Animation` member
+- `.animate(animation=None)` — default `None` runs the sort quietly and just returns the result.
+  - `Animation.ANSI` — redraws a bar chart of the array in place in the terminal on every comparison/swap, using plain ASCII bars (portable across terminal codepages) and inverse-video highlighting for the indices currently being compared.
+  - `Animation.MATPLOTLIB` — not implemented yet, raises `NotImplementedError`.

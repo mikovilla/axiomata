@@ -1,6 +1,6 @@
 # axiomata
 
-![version](https://img.shields.io/badge/version-0.2.0-blue)
+![version](https://img.shields.io/badge/version-0.3.0-blue)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 [![pypi](https://img.shields.io/pypi/v/axiomata)](https://pypi.org/project/axiomata/)
@@ -16,13 +16,15 @@ Everything lives under the single `axiomata` package — see [`axiomata/README.m
 | `axiomata.induction` | Checks mathematical induction proofs of arithmetic-series identities |
 | `axiomata.checks` | Symbolic equality checks for algebraic expressions |
 | `axiomata.master_theorem` | Master Theorem recurrence classification |
+| `axiomata.sort` | Elementary sorting algorithms (bubble, selection, insertion) |
 
 ```python
-from axiomata import induction, checks, master_theorem
+from axiomata import induction, checks, master_theorem, sort
 
 induction.base_case("1 + 2 + 3 + ... + n = n(n+1)/2")
 checks.equal("(k+1)³ − (k+1)", "(k³ − k) + 3k(k+1)")
 master_theorem.calculate(2, 2, "n")
+sort.bubble()
 ```
 
 ## Dev setup
