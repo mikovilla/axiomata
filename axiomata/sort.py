@@ -85,6 +85,14 @@ _FRAME_FUNCTIONS = {
 }
 
 
+def _label(index, total):
+    if index == 0:
+        return "Before"
+    if index == total - 1:
+        return "After"
+    return f"Step {index}/{total - 1}"
+
+
 def _ensure_ansi_enabled():
     global _ansi_ready
     if _ansi_ready:
@@ -94,11 +102,11 @@ def _ensure_ansi_enabled():
     _ansi_ready = True
 
 
-def _render_frame(values, active, width):
+def _render_frame(values, active, width, label):
     max_value = max(values)
     heights = [max(1, round(v / max_value * BAR_HEIGHT)) for v in values]
 
-    rows = []
+    rows = [label]
     for row in range(BAR_HEIGHT, 0, -1):
         cells = []
         for i, h in enumerate(heights):
@@ -115,13 +123,12 @@ def _render_frame(values, active, width):
 def _play_ansi(frames, delay):
     _ensure_ansi_enabled()
 
-    result = None
+    total = len(frames)
     first = True
 
-    for values, active in frames:
-        result = values
+    for index, (values, active) in enumerate(frames):
         width = max(3, max(len(str(v)) for v in values) + 1)
-        frame_text = _render_frame(values, active, width)
+        frame_text = _render_frame(values, active, width, _label(index, total))
 
         if not first:
             sys.stdout.write(f"\033[{frame_text.count(chr(10)) + 1}F")
@@ -131,7 +138,56 @@ def _play_ansi(frames, delay):
         first = False
         time.sleep(delay)
 
-    return result
+    return frames[-1][0]
+
+
+def _in_notebook():
+    try:
+        from IPython import get_ipython
+    except ImportError:
+        return False
+    shell = get_ipython()
+    return shell is not None and shell.__class__.__name__ == "ZMQInteractiveShell"
+
+
+def _play_matplotlib(frames, delay):
+    import matplotlib.pyplot as plt
+
+    in_notebook = _in_notebook()
+    if in_notebook:
+        from IPython.display import display, clear_output
+
+    total = len(frames)
+    fig, ax = plt.subplots()
+    interactive = fig.canvas.required_interactive_framework is not None
+
+    if not in_notebook and interactive:
+        plt.ion()
+        fig.show()
+
+    for index, (values, active) in enumerate(frames):
+        ax.clear()
+        colors = ["#ff7f0e" if i in active else "#1f77b4" for i in range(len(values))]
+        bars = ax.bar(range(len(values)), values, color=colors)
+        for bar, v in zip(bars, values):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), str(v), ha="center", va="bottom")
+        ax.set_title(_label(index, total))
+        ax.set_xticks([])
+        ax.set_ylim(0, max(values) * 1.15)
+
+        if in_notebook:
+            clear_output(wait=True)
+            display(fig)
+        elif interactive:
+            fig.canvas.draw_idle()
+            fig.canvas.flush_events()
+        else:
+            fig.canvas.draw()
+
+        time.sleep(delay)
+
+    plt.close(fig)
+    return frames[-1][0]
 
 
 class Sort:
@@ -163,28 +219,28 @@ class Sort:
             self._values = _prepare(self._count, self._array)
         return list(self._values)
 
-    def animate(self, animation=None):
-        frames = _FRAME_FUNCTIONS[self._algorithm](self._start())
+    def run(self):
+        frames = list(_FRAME_FUNCTIONS[self._algorithm](self._start()))
+        before, _active = frames[0]
+        after, _active = frames[-1]
 
-        if animation is None:
-            result = None
-            for result, _active in frames:
-                pass
-            return result
+        width = max(3, max(len(str(v)) for v in before) + 1)
+        print(_render_frame(before, (), width, "Before"))
+        print()
+        print(_render_frame(after, (), width, "After"))
+
+        return after
+
+    def animate(self, animation=Animation.ANSI):
+        frames = list(_FRAME_FUNCTIONS[self._algorithm](self._start()))
+
+        if animation is Animation.ANSI:
+            return _play_ansi(frames, self._delay)
 
         if animation is Animation.MATPLOTLIB:
-            raise NotImplementedError(f"animate={animation} is not implemented yet")
+            return _play_matplotlib(frames, self._delay)
 
-        return _play_ansi(frames, self._delay)
-
-
-def bubble(animate=None, delay=1):
-    return Sort(Type.BUBBLE).delay(delay).animate(animate)
-
-
-def selection(animate=None, delay=1):
-    return Sort(Type.SELECTION).delay(delay).animate(animate)
-
-
-def insertion(animate=None, delay=1):
-    return Sort(Type.INSERTION).delay(delay).animate(animate)
+        raise ValueError(
+            f"animation must be Animation.ANSI or Animation.MATPLOTLIB, got {animation!r}; "
+            "use .run() for a quiet, non-animated result"
+        )

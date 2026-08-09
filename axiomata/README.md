@@ -82,25 +82,27 @@ Elementary O(n²) sorting algorithms: `bubble`, `selection`, `insertion`.
 ```python
 from axiomata.sort import Sort, Type, Animation
 
-Sort(Type.BUBBLE).animate()                              # sorts 10 random distinct numbers
-Sort(Type.SELECTION).array(5).animate()                   # sorts 5 random distinct numbers
-Sort(Type.INSERTION).array([5, 3, 8, 1, 9]).animate()     # sorts the given array
+Sort(Type.BUBBLE).run()                                # sorts 10 random distinct numbers, prints Before/After only
+Sort(Type.SELECTION).array(5).run()                     # sorts 5 random distinct numbers, prints Before/After only
+Sort(Type.INSERTION).array([5, 3, 8, 1, 9]).run()       # sorts the given array, prints Before/After only
 
-# live terminal bar-chart animation, redrawn in place every `delay` seconds
-Sort(Type.BUBBLE).array([5, 3, 8, 1, 9]).delay(0.5).animate(Animation.ANSI)
+# animated: defaults to Animation.ANSI, a live terminal bar chart redrawn
+# in place every `delay` seconds, labeled "Before" / "Step n" / "After"
+Sort(Type.BUBBLE).array([5, 3, 8, 1, 9]).delay(0.5).animate()
 
-# shorthand for the zero-config case (10 random distinct numbers, delay defaults to 1)
-from axiomata import sort
-
-sort.bubble()
-sort.selection(animate=Animation.ANSI)          # delay defaults to 1
-sort.insertion(animate=Animation.ANSI, delay=0.5)
+# in a Jupyter notebook, use matplotlib instead — ANSI's in-place
+# redraw doesn't render correctly in notebook output cells
+Sort(Type.SELECTION).array([5, 3, 8, 1, 9]).delay(0.5).animate(Animation.MATPLOTLIB)
 ```
 
-`Sort(algorithm)` fixes which algorithm the instance runs — `Type.BUBBLE`, `Type.SELECTION`, or `Type.INSERTION`. `.array(...)` and `.delay(seconds)` are chainable configuration methods; `.animate(...)` is the terminal call that actually runs the sort and returns the sorted list. Calling `.animate()` more than once on the same instance reuses the same starting values.
+`Sort(algorithm)` fixes which algorithm the instance runs — `Type.BUBBLE`, `Type.SELECTION`, or `Type.INSERTION`. `.array(...)` and `.delay(seconds)` are chainable configuration methods. `.run()` and `.animate(...)` are the two terminal calls — pick one:
+
+- `.run()` — sorts without a step-by-step animation, but still prints a `Before` and `After` bar chart (no delay between them) so the starting and ending arrangement are visible, then returns the result.
+- `.animate(animation=Animation.ANSI)` — sorts with a full step-by-step visualization and returns the result. Every frame is labeled `Before`, `Step n/total`, or `After`, so the starting and ending arrangement are always shown, not just the last step.
+  - `Animation.ANSI` (default) — redraws a bar chart in place in the terminal on every comparison/swap, using plain ASCII bars (portable across terminal codepages) and inverse-video highlighting for the indices currently being compared. Needs a real terminal — doesn't redraw correctly in a Jupyter output cell.
+  - `Animation.MATPLOTLIB` — redraws a matplotlib bar chart each frame. Inside a Jupyter notebook it updates the same output cell in place (via `IPython.display`); outside a notebook it opens a live-updating figure window (falls back to a plain redraw if no GUI backend is available).
+
+Calling `.run()` or `.animate()` more than once on the same instance reuses the same starting values.
 
 - `.array(values=None)` — `array()` (no arguments) generates `10` random distinct numbers; `array(n)` generates `n` random distinct numbers (max `10` for now); `array([...])` sorts that explicit list instead (must be distinct numbers, max `10` elements for now)
-- `.delay(seconds)` — seconds between animation frames (default `1`), only meaningful when `.animate(...)` is given an `Animation` member
-- `.animate(animation=None)` — default `None` runs the sort quietly and just returns the result.
-  - `Animation.ANSI` — redraws a bar chart of the array in place in the terminal on every comparison/swap, using plain ASCII bars (portable across terminal codepages) and inverse-video highlighting for the indices currently being compared.
-  - `Animation.MATPLOTLIB` — not implemented yet, raises `NotImplementedError`.
+- `.delay(seconds)` — seconds between animation frames (default `1`), only meaningful when `.animate(...)` is used

@@ -1,6 +1,6 @@
 # axiomata
 
-![version](https://img.shields.io/badge/version-0.3.0-blue)
+![version](https://img.shields.io/badge/version-0.3.1-blue)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 [![pypi](https://img.shields.io/pypi/v/axiomata)](https://pypi.org/project/axiomata/)
@@ -19,12 +19,13 @@ Everything lives under the single `axiomata` package — see [`axiomata/README.m
 | `axiomata.sort` | Elementary sorting algorithms (bubble, selection, insertion) |
 
 ```python
-from axiomata import induction, checks, master_theorem, sort
+from axiomata import induction, checks, master_theorem
+from axiomata.sort import Sort, Type
 
 induction.base_case("1 + 2 + 3 + ... + n = n(n+1)/2")
 checks.equal("(k+1)³ − (k+1)", "(k³ − k) + 3k(k+1)")
 master_theorem.calculate(2, 2, "n")
-sort.bubble()
+Sort(Type.BUBBLE).run()
 ```
 
 ## Dev setup
