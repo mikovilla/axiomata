@@ -82,9 +82,9 @@ Elementary O(n²) sorting algorithms: `bubble`, `selection`, `insertion`.
 ```python
 from axiomata.sort import Sort, Type, Animation
 
-Sort(Type.BUBBLE).run()                                # sorts 10 random distinct numbers, prints Before/After only
-Sort(Type.SELECTION).array(5).run()                     # sorts 5 random distinct numbers, prints Before/After only
-Sort(Type.INSERTION).array([5, 3, 8, 1, 9]).run()       # sorts the given array, prints Before/After only
+Sort(Type.BUBBLE).run()                                # sorts 20 random distinct numbers, prints Before/After/Steps only
+Sort(Type.SELECTION).array(5).run()                     # sorts 5 random distinct numbers, prints Before/After/Steps only
+Sort(Type.INSERTION).array([5, 3, 8, 1, 9]).run()       # sorts the given array, prints Before/After/Steps only
 
 # animated: defaults to Animation.ANSI, a live terminal bar chart redrawn
 # in place every `delay` seconds, labeled "Before" / "Step n" / "After"
@@ -97,12 +97,12 @@ Sort(Type.SELECTION).array([5, 3, 8, 1, 9]).delay(0.5).animate(Animation.MATPLOT
 
 `Sort(algorithm)` fixes which algorithm the instance runs — `Type.BUBBLE`, `Type.SELECTION`, or `Type.INSERTION`. `.array(...)` and `.delay(seconds)` are chainable configuration methods. `.run()` and `.animate(...)` are the two terminal calls — pick one:
 
-- `.run()` — sorts without a step-by-step animation, but still prints a `Before` and `After` bar chart (no delay between them) so the starting and ending arrangement are visible, then returns the result.
-- `.animate(animation=Animation.ANSI)` — sorts with a full step-by-step visualization and returns the result. Every frame is labeled `Before`, `Step n/total`, or `After`, so the starting and ending arrangement are always shown, not just the last step.
+- `.run()` — sorts without a step-by-step animation, but still prints a `Before` and `After` bar chart (no delay between them), then a plain-text `Before: [...] / After: [...] / Steps: N` summary, and returns the result.
+- `.animate(animation=Animation.ANSI)` — sorts with a full step-by-step visualization and returns the result. Every frame is labeled `Before`, `Step n/total`, or `After`, so the starting and ending arrangement are always shown, not just the last step. Once the animation finishes, it also prints the same plain-text `Before: [...] / After: [...] / Steps: N` summary — a permanent record that survives even if the live redraw scrolled by too fast to read, or (for `Animation.MATPLOTLIB` in a notebook) is easy to miss once the cell output settles.
   - `Animation.ANSI` (default) — redraws a bar chart in place in the terminal on every comparison/swap, using plain ASCII bars (portable across terminal codepages) and inverse-video highlighting for the indices currently being compared. Needs a real terminal — doesn't redraw correctly in a Jupyter output cell.
   - `Animation.MATPLOTLIB` — redraws a matplotlib bar chart each frame. Inside a Jupyter notebook it updates the same output cell in place (via `IPython.display`); outside a notebook it opens a live-updating figure window (falls back to a plain redraw if no GUI backend is available).
 
 Calling `.run()` or `.animate()` more than once on the same instance reuses the same starting values.
 
-- `.array(values=None)` — `array()` (no arguments) generates `10` random distinct numbers; `array(n)` generates `n` random distinct numbers (max `10` for now); `array([...])` sorts that explicit list instead (must be distinct numbers, max `10` elements for now)
+- `.array(values=None)` — `array()` (no arguments) generates `20` random distinct numbers; `array(n)` generates `n` random distinct numbers (max `20` for now); `array([...])` sorts that explicit list instead (must be distinct numbers, max `20` elements for now)
 - `.delay(seconds)` — seconds between animation frames (default `1`), only meaningful when `.animate(...)` is used

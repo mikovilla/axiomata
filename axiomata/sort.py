@@ -4,7 +4,7 @@ import sys
 import time
 from enum import Enum
 
-MAX_ELEMENTS = 10
+MAX_ELEMENTS = 20
 BAR_HEIGHT = 10
 
 _ansi_ready = False
@@ -91,6 +91,12 @@ def _label(index, total):
     if index == total - 1:
         return "After"
     return f"Step {index}/{total - 1}"
+
+
+def _print_summary(before, after, steps):
+    print(f"Before: {before}")
+    print(f"After:  {after}")
+    print(f"Steps:  {steps}")
 
 
 def _ensure_ansi_enabled():
@@ -228,19 +234,26 @@ class Sort:
         print(_render_frame(before, (), width, "Before"))
         print()
         print(_render_frame(after, (), width, "After"))
+        print()
+        _print_summary(before, after, len(frames) - 1)
 
         return after
 
     def animate(self, animation=Animation.ANSI):
         frames = list(_FRAME_FUNCTIONS[self._algorithm](self._start()))
+        before, _active = frames[0]
 
         if animation is Animation.ANSI:
-            return _play_ansi(frames, self._delay)
+            result = _play_ansi(frames, self._delay)
+        elif animation is Animation.MATPLOTLIB:
+            result = _play_matplotlib(frames, self._delay)
+        else:
+            raise ValueError(
+                f"animation must be Animation.ANSI or Animation.MATPLOTLIB, got {animation!r}; "
+                "use .run() for a quiet, non-animated result"
+            )
 
-        if animation is Animation.MATPLOTLIB:
-            return _play_matplotlib(frames, self._delay)
+        print()
+        _print_summary(before, result, len(frames) - 1)
 
-        raise ValueError(
-            f"animation must be Animation.ANSI or Animation.MATPLOTLIB, got {animation!r}; "
-            "use .run() for a quiet, non-animated result"
-        )
+        return result
